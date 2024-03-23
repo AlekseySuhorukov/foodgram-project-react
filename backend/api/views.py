@@ -15,34 +15,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from api.serializers import CreateUserSerializer, GETUserSerializer, FollowSerializer, TagSerializer, IngredientSerializer, FavoriteSerializer, ShoppingListSerializer, RecipeWriteSerializer, RecipeGETSerializer
 from api.paginations import CustomPagination
-from api.models import Tag, Follow, Ingredient, Favorite, Recipe
+from api.models import Tag, Follow, Ingredient, Favorite, Recipe, ShoppingList
 from api.filters import IngredientSearchFilter, RecipeFilter
 from api.permissions import IsOwnerOrAdminOrReadOnly, IsCurrentUserOrAdminOrReadOnly
 
 
 User = get_user_model()
-
-def favorite_shopping(self, user, request, post_serializer, id, post_400_message, delete_204_message):
-    recipe = get_object_or_404(Recipe, id)
-    favorite_recipe = get_object_or_404(Favorite, user=user, recipe=recipe)
-    if request.method == 'POST':
-        if favorite_recipe.exists():
-            return Response({'errors': post_400_message},
-                            status=status.HTTP_400_BAD_REQUEST)
-        serializer = post_serializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save(user=user, recipe=recipe)
-            return Response(serializer.data,
-                            status=status.HTTP_201_CREATED)
-        return Response(serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST)
-    if favorite_recipe.exists():
-        favorite_recipe.delete()
-        return Response(delete_204_message,
-                    status=status.HTTP_204_NO_CONTENT)
-    return Response({'errors': 'Объект не найден'},
-                        status=status.HTTP_404_NOT_FOUND)
-
 
 class UserViewSet(viewsets.ModelViewSet):
 
@@ -103,11 +81,15 @@ class UserViewSet(viewsets.ModelViewSet):
             )
             if serializer.is_valid(raise_exception=True):
                 serializer.save(following=following, user=user)
-                return Response({'Подписка создана': serializer.data},
+                return Response(serializer.data,
                                 status=status.HTTP_201_CREATED)
             return Response({'errors': 'Объект не найден'},
                             status=status.HTTP_404_NOT_FOUND)
-        follow = get_object_or_404(Follow, following=following, user=user)
+        # follow = get_object_or_404(Follow, following=following, user=user)
+        follow = Follow.objects.filter(following=following, user=user)
+        if not follow:
+            return Response({'errors': 'Подписка не найдена'},
+                            status=status.HTTP_400_BAD_REQUEST)
         follow.delete()
         return Response('Вы отписались', status=status.HTTP_204_NO_CONTENT)
 
@@ -163,35 +145,83 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return RecipeGETSerializer
         return RecipeWriteSerializer
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context
 
+    def favorite_shopping(self, request, model, post_serializer, post_400_message, delete_204_message):
+        print('11111111111111111')
+        user=self.request.user
+        print('2222222222222222')
+        id = self.kwargs.get('pk')
+        print('33333333333333333')
+        # recipe = Recipe.objects.filter(id=id)
+        try:
+            recipe = get_object_or_404(Recipe, id=id)
+        except:
+            if request.method == 'POST':
+                return Response({'errors': 'Рецепт не найден'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            return Response({'errors': 'Рецепт не найден'},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        #     return Response({'errors': 'Рецепт не найден'},
+        #                     status=status.HTTP_400_BAD_REQUEST)
+
+        # recipe = Recipe.objects.filter(id=id)
+        # if not recipe:
+        #     return Response({'errors': 'Рецепт не найден'},
+        #                     status=status.HTTP_400_BAD_REQUEST)
+
+
+        # favorite_recipe = get_object_or_404(model, user=user, recipe=recipe)
+        # print(model.objects.filter(user=user, recipe=recipe))
+        favorite_recipe = model.objects.filter(user=user, recipe=recipe)
+        print('66666666666666666')
+        if request.method == 'POST':
+            if favorite_recipe.exists():
+                return Response({'errors': post_400_message},
+                                status=status.HTTP_400_BAD_REQUEST)
+            serializer = post_serializer(data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save(user=user, recipe=recipe)
+                return Response(serializer.data,
+                                status=status.HTTP_201_CREATED)
+            return Response(serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
+        if favorite_recipe.exists():
+            favorite_recipe.delete()
+            return Response(delete_204_message,
+                        status=status.HTTP_204_NO_CONTENT)
+        return Response({'errors': 'Объект не найден'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True,
             methods=['POST', 'DELETE'],
             permission_classes=[IsAuthenticated])
     def favorite(self, request, **kwargs):
-        favorite_shopping(
-            self,
-            user=self.request.user,
-            request=request,
-            post_serializer=FavoriteSerializer,
-            id=self.kwargs.get('pk'),
-            post_400_message='Рецепт уже в избранном',
-            delete_204_message='Рецепт удалён из избранного'
+        response = self.favorite_shopping(
+            request,
+            Favorite,
+            FavoriteSerializer,
+            'Рецепт уже в избранном',
+            'Рецепт удалён из избранного'
         )
+        return response
 
     @action(detail=True,
             methods=['POST', 'DELETE'],
             permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, **kwargs):
-        favorite_shopping(
-            self,
-            user=self.request.user,
-            request=request,
-            post_serializer=ShoppingListSerializer,
-            id=self.kwargs.get('pk'),
-            post_400_message='Рецепт уже в списке покупок',
-            delete_204_message='Рецепт удалён из списка покупок'
+        response = self.favorite_shopping(
+            request,
+            ShoppingList,
+            ShoppingListSerializer,
+            'Рецепт уже в списке покупок',
+            'Рецепт удалён из списка покупок'
         )
+        return response
 
 
     @action(detail=False,
@@ -200,9 +230,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request):
 
         user = User.objects.get(id=self.request.user.pk)
-        if user.shopping_list.exists():
+        if user.shopping_cart.exists():
             ingredients = (
-                Ingredient.objects.filter(recipe_ingredients__recipe__shopping_list__user=user)
+                Ingredient.objects.filter(recipe_ingredients__recipe__shopping_cart__user=user)
                 .values("name", measurement=F('measurement_unit'))
                 .annotate(amount=Sum('recipe_ingredients__amount'))
             )
@@ -211,10 +241,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 f'{dt.now().strftime("%d-%m-%Y")}\n'
             ]
             for ingredient in ingredients:
+                print(ingredient)
                 shopping_list += (
-                    f'{ingredient["ingredient__name"]} '
-                    f'({ingredient["ingredient__measurement_unit"]}) - '
-                    f'{ingredient["amounts"]}\n'
+                    f'{ingredient["name"]} '
+                    f'({ingredient["measurement"]}) - '
+                    f'{ingredient["amount"]}\n'
                 )
             filename = 'shopping_list.txt'
             response = HttpResponse(shopping_list, content_type='text/plain')

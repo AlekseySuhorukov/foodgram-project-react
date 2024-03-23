@@ -101,7 +101,6 @@ class Recipe(models.Model):
         db_index=True)
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления',
-        default=0,
         validators=[MinValueValidator(1, 'Минимальное время приготовления')],
         help_text='Укажите время приготовления рецепта в минутах')
     image = models.ImageField(
@@ -145,8 +144,8 @@ class IngredientRecipe(models.Model):
         help_text='Укажите количество ингредиента')
 
     class Meta:
-        verbose_name = 'Cостав рецепта'
-        verbose_name_plural = 'Состав рецепта'
+        verbose_name = 'Ингредиент рецепта'
+        verbose_name_plural = 'Ингредиенты рецепта'
         constraints = [
             models.UniqueConstraint(
                 fields=['recipe', 'ingredient'],
@@ -165,7 +164,7 @@ class Favorite(models.Model):
     )
     recipe = models.ForeignKey(
         Recipe,
-        related_name='in_favorites',
+        related_name='favorite',
         on_delete=models.CASCADE,
         verbose_name='Рецепт'
     )
@@ -185,13 +184,13 @@ class ShoppingList(models.Model):
 
     user = models.ForeignKey(
         User,
-        related_name='shopping_list',
+        related_name='shopping_cart',
         on_delete=models.CASCADE,
         verbose_name='Пользователь'
     )
     recipe = models.ForeignKey(
         Recipe,
-        related_name='shopping_list',
+        related_name='shopping_cart',
         verbose_name='Рецепт для приготовления',
         on_delete=models.CASCADE,
     )

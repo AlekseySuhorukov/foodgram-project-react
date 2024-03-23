@@ -6,6 +6,7 @@ volumes:
   static:
   media:
 
+
 services:
 
   db:
@@ -35,7 +36,7 @@ services:
     container_name: nginx
     image: nginx:1.19.3
     ports:
-      - "80:80"
+      - "9500:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/

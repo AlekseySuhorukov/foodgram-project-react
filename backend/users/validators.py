@@ -4,9 +4,9 @@ from django.core.exceptions import ValidationError
 
 
 def validation_username(value):
-    if value.lower() == 'me':
+    if value.lower() == "me":
         raise ValidationError(
-            ({'username': 'me - недопустимое имя пользователя'}),
+            ({"username": "me - недопустимое имя пользователя"}),
         )
-    if re.search(r'^[\w.@+-]+\Z', value) is None:
-        raise ValidationError({'username': 'Недопустимые символы'})
+    if re.search(r"^[\w.@+-]+\Z", value) is None:
+        raise ValidationError({"username": "Недопустимые символы"})

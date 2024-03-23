@@ -7,18 +7,30 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0005_alter_recipe_image'),
+        ("api", "0005_alter_recipe_image"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='recipe',
-            name='cooking_time',
-            field=models.PositiveSmallIntegerField(help_text='Укажите время приготовления рецепта в минутах', validators=[django.core.validators.MinValueValidator(1, 'Минимальное время приготовления')], verbose_name='Время приготовления'),
+            model_name="recipe",
+            name="cooking_time",
+            field=models.PositiveSmallIntegerField(
+                help_text="Укажите время приготовления рецепта в минутах",
+                validators=[
+                    django.core.validators.MinValueValidator(
+                        1, "Минимальное время приготовления"
+                    )
+                ],
+                verbose_name="Время приготовления",
+            ),
         ),
         migrations.AlterField(
-            model_name='recipe',
-            name='image',
-            field=models.ImageField(help_text='Добавьте изображение рецепта', upload_to='media/', verbose_name='Картинка рецепта'),
+            model_name="recipe",
+            name="image",
+            field=models.ImageField(
+                help_text="Добавьте изображение рецепта",
+                upload_to="media/",
+                verbose_name="Картинка рецепта",
+            ),
         ),
     ]

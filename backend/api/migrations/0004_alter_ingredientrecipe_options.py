@@ -6,12 +6,15 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0003_alter_tag_color'),
+        ("api", "0003_alter_tag_color"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='ingredientrecipe',
-            options={'verbose_name': 'Ингредиент рецепта', 'verbose_name_plural': 'Ингредиенты рецепта'},
+            name="ingredientrecipe",
+            options={
+                "verbose_name": "Ингредиент рецепта",
+                "verbose_name_plural": "Ингредиенты рецепта",
+            },
         ),
     ]

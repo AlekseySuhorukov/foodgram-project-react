@@ -1,12 +1,5 @@
-from api.models import (
-    Favorite,
-    Follow,
-    Ingredient,
-    IngredientRecipe,
-    Recipe,
-    ShoppingList,
-    Tag,
-)
+from api.models import (Favorite, Follow, Ingredient, IngredientRecipe, Recipe,
+                        ShoppingList, Tag)
 from django.contrib.admin import ModelAdmin, TabularInline, display, register
 from django.utils.html import format_html
 

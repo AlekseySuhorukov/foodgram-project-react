@@ -4,17 +4,11 @@ from api.filters import IngredientSearchFilter, RecipeFilter
 from api.models import Favorite, Follow, Ingredient, Recipe, ShoppingList, Tag
 from api.paginations import CustomPagination
 from api.permissions import IsCurrentUserOrReadOnly, IsOwnerOrReadOnly
-from api.serializers import (
-    CreateUserSerializer,
-    FavoriteSerializer,
-    FollowSerializer,
-    GETUserSerializer,
-    IngredientSerializer,
-    RecipeGETSerializer,
-    RecipeWriteSerializer,
-    ShoppingListSerializer,
-    TagSerializer,
-)
+from api.serializers import (CreateUserSerializer, FavoriteSerializer,
+                             FollowSerializer, GETUserSerializer,
+                             IngredientSerializer, RecipeGETSerializer,
+                             RecipeWriteSerializer, ShoppingListSerializer,
+                             TagSerializer)
 from django.contrib.auth import get_user_model
 from django.db.models import F, Sum
 from django.http import HttpResponse

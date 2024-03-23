@@ -30,7 +30,7 @@ services:
       - db
     volumes:
       - media:/app/media
-      - static:/app/static_backend
+      - static:/app/static
 
   nginx:
     container_name: nginx

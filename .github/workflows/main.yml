@@ -69,7 +69,7 @@ jobs:
         with:
           context: ./frontend/
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/kittygram_frontend:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
 
 
   deploy:

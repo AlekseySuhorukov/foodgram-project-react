@@ -114,7 +114,7 @@ jobs:
           sudo docker compose -f infra/docker-compose.yml up -d
           sudo docker compose -f infra/docker-compose.yml exec backend python manage.py makemigrations
           sudo docker compose -f infra/docker-compose.yml exec backend python manage.py migrate
-          sudo docker compose -f infra/docker-compose.yml exec backend python manage.py collectstatic
+          sudo docker compose -f infra/docker-compose.yml exec backend python manage.py collectstatic --noinput
           sudo docker image prune -a
 
   send_message:

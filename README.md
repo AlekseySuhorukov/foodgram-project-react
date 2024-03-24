@@ -1,4 +1,4 @@
-![workflow](https://github.com/AlekseySuhorukov/foodgram-project-react/actions/workflows/master.yml/badge.svg)
+![workflow](https://github.com/AlekseySuhorukov/foodgram-project-react/actions/workflows/main.yml/badge.svg)
 # Foodgram
 Яндекс Практикум, Спринт 17
 

@@ -35,9 +35,9 @@ class Tag(models.Model):
     """
 
     COLOR_CHOICES = [
-        ("09db4f", "GREEN"),
-        ("ffff00", "YELLOW"),
-        ("b813d1", "PURPLE"),
+        ("#32CD32", "GREEN"),
+        ("#FFFF00", "YELLOW"),
+        ("#800080", "PURPLE"),
     ]
 
     name = models.CharField(verbose_name="Тэг", max_length=150, unique=True,)

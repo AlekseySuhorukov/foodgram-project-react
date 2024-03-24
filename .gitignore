@@ -132,3 +132,4 @@ dmypy.json
 # .idea
 .idea
 .vscode
+json_parsing.py

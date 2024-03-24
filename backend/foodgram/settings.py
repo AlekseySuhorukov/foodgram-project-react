@@ -38,12 +38,10 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "foodgram.urls"
 
-TEMPLATES_DIR = BASE_DIR / "api" / "templates"
-
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [TEMPLATES_DIR],
+        "DIRS": [],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

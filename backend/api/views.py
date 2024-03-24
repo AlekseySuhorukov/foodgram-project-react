@@ -29,7 +29,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
 
     queryset = User.objects.all()
-    permission_classes = (IsCurrentUserOrReadOnly,)
+    permission_classes = [IsCurrentUserOrReadOnly]
     pagination_class = CustomPagination
 
     def get_serializer_class(self):
@@ -40,7 +40,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(
         methods=["GET"],
         detail=False,
-        permission_classes=(IsAuthenticated,),
+        permission_classes=[IsAuthenticated],
         url_path="me",
     )
     def get_me(self, request):
@@ -54,7 +54,8 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
-        methods=["POST"], detail=False, permission_classes=[IsAuthenticated]
+        methods=["POST"], detail=False,
+        permission_classes=[IsAuthenticated]
     )
     def set_password(self, request):
         serializer = SetPasswordSerializer(

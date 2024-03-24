@@ -147,7 +147,7 @@ class ShoppingListSerializer(FavoriteSerializer):
 
 
 class GETIngredientRecipeSerializer(serializers.ModelSerializer):
-    """Serializer для связаной модели Recipe и Ingredient."""
+    """Serializer для связующей модели IngredientRecipe."""
 
     id = serializers.ReadOnlyField(source="ingredient.id")
     name = serializers.ReadOnlyField(source="ingredient.name")
@@ -162,10 +162,7 @@ class GETIngredientRecipeSerializer(serializers.ModelSerializer):
 
 class RecipeGETSerializer(serializers.ModelSerializer):
     """
-    Serializer для модели Recipe - чтение данных.
-    Находится ли рецепт в избранном, списке покупок.
-    Получение списка ингредиентов с добавленным полем
-    amount из промежуточной модели.
+    Serializer для модели Recipe для безопасных методов.
     """
 
     author = GETUserSerializer()
@@ -207,7 +204,7 @@ class RecipeGETSerializer(serializers.ModelSerializer):
 
 class POSTIngredientSerializer(serializers.ModelSerializer):
     """
-    Serializer для поля ingredient модели Recipe - создание ингредиентов.
+    Serializer для поля ingredient модели Recipe. Создание ингредиентов.
     """
 
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
@@ -219,7 +216,7 @@ class POSTIngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
-    """Serializer для модели Recipe - запись / обновление / удаление данных."""
+    """Serializer для модели Recipe для небезопасных методов"""
 
     ingredients = POSTIngredientSerializer(many=True, write_only=True,)
     tags = serializers.PrimaryKeyRelatedField(

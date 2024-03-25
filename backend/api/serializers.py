@@ -50,7 +50,8 @@ class GETUserSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
         if user.is_anonymous or (user == obj):
             return False
-        return Follow.objects.filter(user=user, following=obj).exists()
+        return obj.following.filter(user=user).exists()
+
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
@@ -89,7 +90,8 @@ class FollowSerializer(serializers.ModelSerializer):
 
     def get_recipes(self, obj) -> list:
         limit = self.context["request"].GET.get("recipes_limit")
-        recipes = Recipe.objects.filter(author=obj.following)
+        # recipes = Recipe.objects.filter(author=obj.following)
+        recipes = obj.user.recipe.all()
         if limit and limit.isdigit():
             recipes = recipes[: int(limit)]
         return ShortRecipeSerializer(recipes, many=True).data
@@ -210,18 +212,11 @@ class POSTIngredientSerializer(serializers.ModelSerializer):
     """
 
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
-    amount = serializers.IntegerField()
+    amount = serializers.IntegerField(max_value=MAX_AMOUNT, min_value=MIN_AMOUNT)
 
     class Meta:
         model = IngredientRecipe
         fields = ("id", "amount")
-
-    def validate_amount(self, value):
-        if value < MIN_AMOUNT:
-            raise ValidationError({"amount": "Меньше допустимого"})
-        if value > MAX_AMOUNT:
-            raise ValidationError({"amount": "Больше допустимого"})
-        return value
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
@@ -235,7 +230,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    cooking_time = serializers.IntegerField()
+    cooking_time = serializers.IntegerField(max_value=MAX_AMOUNT, min_value=MIN_AMOUNT)
 
     class Meta:
         model = Recipe
@@ -271,13 +266,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         if not obj.get("tags"):
             raise ValidationError({"tags": "Поле обязательное"})
         return obj
-
-    def validate_cooking_time(self, value):
-        if value < MIN_AMOUNT:
-            raise ValidationError({"amount": "Меньше допустимого"})
-        if value > MAX_AMOUNT:
-            raise ValidationError({"amount": "Больше допустимого"})
-        return value
 
     def validate_image(self, value):
         if not value:

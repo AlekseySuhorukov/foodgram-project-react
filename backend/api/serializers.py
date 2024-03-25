@@ -1,9 +1,10 @@
-from api.models import (Favorite, Follow, Ingredient, IngredientRecipe, Recipe,
-                        ShoppingList, Tag)
 from django.contrib.auth import get_user_model
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
+
+from api.models import (Favorite, Follow, Ingredient, IngredientRecipe, Recipe,
+                        ShoppingList, Tag)
 
 User = get_user_model()
 

@@ -53,7 +53,6 @@ class GETUserSerializer(serializers.ModelSerializer):
         return obj.following.filter(user=user).exists()
 
 
-
 class ShortRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
@@ -212,7 +211,10 @@ class POSTIngredientSerializer(serializers.ModelSerializer):
     """
 
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
-    amount = serializers.IntegerField(max_value=MAX_AMOUNT, min_value=MIN_AMOUNT)
+    amount = serializers.IntegerField(
+        max_value=MAX_AMOUNT,
+        min_value=MIN_AMOUNT
+    )
 
     class Meta:
         model = IngredientRecipe
@@ -230,7 +232,10 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    cooking_time = serializers.IntegerField(max_value=MAX_AMOUNT, min_value=MIN_AMOUNT)
+    cooking_time = serializers.IntegerField(
+        max_value=MAX_AMOUNT,
+        min_value=MIN_AMOUNT
+    )
 
     class Meta:
         model = Recipe

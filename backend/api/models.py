@@ -21,6 +21,7 @@ class Follow(models.Model):
     )
 
     class Meta:
+        ordering = ["following"]
         constraints = [
             models.CheckConstraint(
                 check=~models.Q(user=models.F("following")),
@@ -30,9 +31,6 @@ class Follow(models.Model):
                 fields=["user", "following"], name="unique follow"
             ),
         ]
-
-    class Meta:
-        ordering = ["following"]
 
     def __str__(self) -> str:
         return f"{self.following}"

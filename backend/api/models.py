@@ -1,8 +1,11 @@
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 User = get_user_model()
+
+MIN_AMOUNT = 1
+MAX_AMOUNT = 32000
 
 
 class Follow(models.Model):
@@ -28,6 +31,12 @@ class Follow(models.Model):
             ),
         ]
 
+    class Meta:
+        ordering = ["following"]
+
+    def __str__(self) -> str:
+        return f"{self.following}"
+
 
 class Tag(models.Model):
     """
@@ -48,6 +57,12 @@ class Tag(models.Model):
     slug = models.CharField(
         verbose_name="Слаг тэга", max_length=150, unique=True,
     )
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self) -> str:
+        return f"{self.name}"
 
 
 class Ingredient(models.Model):
@@ -72,7 +87,7 @@ class Ingredient(models.Model):
         verbose_name = "Ингредиент"
         verbose_name_plural = "Ингредиенты"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name}"
 
 
@@ -105,7 +120,10 @@ class Recipe(models.Model):
     )
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name="Время приготовления",
-        validators=[MinValueValidator(1, "Минимальное время приготовления")],
+        validators=[
+            MinValueValidator(MIN_AMOUNT, "Минимальное время приготовления"),
+            MaxValueValidator(MAX_AMOUNT, "Максимальное время приготовления")
+        ],
         help_text="Укажите время приготовления рецепта в минутах",
     )
     image = models.ImageField(
@@ -127,6 +145,9 @@ class Recipe(models.Model):
                 fields=["name", "author"], name="unique_recipe"
             )
         ]
+
+    def __str__(self) -> str:
+        return f"{self.name}"
 
 
 class IngredientRecipe(models.Model):
@@ -151,13 +172,15 @@ class IngredientRecipe(models.Model):
     )
     amount = models.PositiveSmallIntegerField(
         validators=[
-            MinValueValidator(1, "Минимальное количество ингредиентов 1")
+            MinValueValidator(MIN_AMOUNT, "Минимальное время приготовления"),
+            MaxValueValidator(MAX_AMOUNT, "Максимальное время приготовления")
         ],
         verbose_name="Количество",
         help_text="Укажите количество ингредиента",
     )
 
     class Meta:
+        ordering = ["ingredient"]
         verbose_name = "Ингредиент рецепта"
         verbose_name_plural = "Ингредиенты рецепта"
         constraints = [
@@ -166,7 +189,7 @@ class IngredientRecipe(models.Model):
             )
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.ingredient} {self.amount}"
 
 
@@ -189,6 +212,7 @@ class Favorite(models.Model):
     )
 
     class Meta:
+        ordering = ["recipe"]
         verbose_name = "Избранный рецепт"
         verbose_name_plural = "Избранные рецепты"
         constraints = [
@@ -197,7 +221,7 @@ class Favorite(models.Model):
             )
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.recipe}"
 
 
@@ -221,6 +245,7 @@ class ShoppingList(models.Model):
     )
 
     class Meta:
+        ordering = ["recipe"]
         verbose_name = "Рецепт для покупки"
         verbose_name_plural = "Рецепты для покупки"
         constraints = [
@@ -229,5 +254,5 @@ class ShoppingList(models.Model):
             )
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.recipe}"

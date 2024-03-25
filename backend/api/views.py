@@ -61,13 +61,12 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = SetPasswordSerializer(
             data=request.data, context={"request": request}
         )
-        if serializer.is_valid(raise_exception=True):
-            self.request.user.set_password(serializer.data["new_password"])
-            self.request.user.save()
-            return Response(
-                "Пароль успешно изменен", status=status.HTTP_204_NO_CONTENT
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        self.request.user.set_password(serializer.data["new_password"])
+        self.request.user.save()
+        return Response(
+            "Пароль успешно изменен", status=status.HTTP_204_NO_CONTENT
+        )
 
     @action(
         detail=True,
@@ -82,16 +81,12 @@ class UserViewSet(viewsets.ModelViewSet):
                 data=request.data,
                 context={"request": request, "following": following},
             )
-            if serializer.is_valid(raise_exception=True):
-                serializer.save(following=following, user=user)
-                return Response(
-                    serializer.data, status=status.HTTP_201_CREATED
-                )
+            serializer.is_valid(raise_exception=True)
+            serializer.save(following=following, user=user)
             return Response(
-                {"errors": "Объект не найден"},
-                status=status.HTTP_404_NOT_FOUND,
+                serializer.data, status=status.HTTP_201_CREATED
             )
-        follow = Follow.objects.filter(following=following, user=user)
+        follow = user.user.filter(following=following)
         if not follow:
             return Response(
                 {"errors": "Подписка не найдена"},
@@ -186,13 +181,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             serializer = post_serializer(data=request.data)
-            if serializer.is_valid(raise_exception=True):
-                serializer.save(user=user, recipe=recipe)
-                return Response(
-                    serializer.data, status=status.HTTP_201_CREATED
-                )
+            serializer.is_valid(raise_exception=True)
+            serializer.save(user=user, recipe=recipe)
             return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+                serializer.data, status=status.HTTP_201_CREATED
             )
         if favorite_recipe.exists():
             favorite_recipe.delete()
@@ -209,14 +201,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[IsAuthenticated],
     )
     def favorite(self, request, **kwargs):
-        response = self.favorite_shopping(
+        return self.favorite_shopping(
             request,
             Favorite,
             FavoriteSerializer,
             "Рецепт уже в избранном",
             "Рецепт удалён из избранного",
         )
-        return response
 
     @action(
         detail=True,
@@ -224,21 +215,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[IsAuthenticated],
     )
     def shopping_cart(self, request, **kwargs):
-        response = self.favorite_shopping(
+        return self.favorite_shopping(
             request,
             ShoppingList,
             ShoppingListSerializer,
             "Рецепт уже в списке покупок",
             "Рецепт удалён из списка покупок",
         )
-        return response
 
     @action(
         detail=False, methods=["get"], permission_classes=[IsAuthenticated]
     )
     def download_shopping_cart(self, request):
 
-        user = User.objects.get(id=self.request.user.pk)
+        user = self.request.user
         if user.shopping_cart.exists():
             ingredients = (
                 (
@@ -254,7 +244,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 f'{dt.now().strftime("%d-%m-%Y")}\n'
             ]
             for ingredient in ingredients:
-                print(ingredient)
                 shopping_list += (
                     f'{ingredient["name"]} '
                     f'({ingredient["measurement"]}) - '

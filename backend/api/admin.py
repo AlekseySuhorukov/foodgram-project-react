@@ -1,7 +1,7 @@
-from api.models import (Favorite, Follow, Ingredient, IngredientRecipe, Recipe,
-                        ShoppingList, Tag)
 from django.contrib.admin import ModelAdmin, TabularInline, display, register
 from django.utils.html import format_html
+from api.models import (Favorite, Follow, Ingredient, IngredientRecipe, Recipe,
+                        ShoppingList, Tag)
 
 
 class IngredientsInline(TabularInline):
@@ -45,7 +45,7 @@ class IngredientRecipeAdmin(ModelAdmin):
 @register(Recipe)
 class RecipeAdmin(ModelAdmin):
 
-    list_display = ("name", "author", "count_favorites")
+    list_display = ("id", "name", "author", "count_favorites")
     search_fields = ("name", "author__username", "tags__name")
     list_filter = ("name", "author__username", "tags__name")
     inlines = [IngredientsInline]

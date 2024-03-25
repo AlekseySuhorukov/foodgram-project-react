@@ -43,5 +43,6 @@ class User(AbstractUser):
 
     class Meta:
         ordering = ("username",)
+        default_related_name = "user"
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"

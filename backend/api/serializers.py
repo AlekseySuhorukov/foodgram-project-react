@@ -95,7 +95,7 @@ class FollowSerializer(serializers.ModelSerializer):
         return ShortRecipeSerializer(recipes, many=True).data
 
     def get_recipes_count(self, obj) -> int:
-        return obj.user.recipe.count()
+        return obj.following.recipe.count()
 
     def validate(self, data):
         following = self.context.get("following")

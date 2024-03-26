@@ -89,8 +89,7 @@ class FollowSerializer(serializers.ModelSerializer):
 
     def get_recipes(self, obj) -> list:
         limit = self.context["request"].GET.get("recipes_limit")
-        # recipes = Recipe.objects.filter(author=obj.following)
-        recipes = obj.following__user.recipe.all()
+        recipes = obj.following.recipe.all()
         if limit and limit.isdigit():
             recipes = recipes[: int(limit)]
         return ShortRecipeSerializer(recipes, many=True).data
